@@ -1,13 +1,17 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 
+const API = 'https://portfolio-cms-production-7468.up.railway.app'
+
 function Gallery() {
     const { gallery } = useParams()
     const [ images, setImages ] = useState([])
     const [ file, setFile ] = useState(null)
 
     async function fetchImages() {
-        const response = await fetch(`https://portfolio-cms-production-7468.up.railway.app/images/${gallery}`)
+        const response = await fetch(`${API}/images/${gallery}`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        })
         const data = await response.json()
         setImages(data)
     }
@@ -21,8 +25,9 @@ function Gallery() {
         const formData = new FormData()
         formData.append('image', file)
         formData.append('gallery', gallery)
-        let response = await fetch('https://portfolio-cms-production-7468.up.railway.app/images', {
+        let response = await fetch(`${API}/images`, {
             method: 'POST',
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }, 
             body: formData
         })
         let data = await response.json();
@@ -31,8 +36,9 @@ function Gallery() {
     }
 
     async function handleDelete(id) {
-        await fetch(`https://portfolio-cms-production-7468.up.railway.app/images/${id}`, {
-            method: 'DELETE'
+        await fetch(`${API}/images/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         })
         fetchImages()
     }
