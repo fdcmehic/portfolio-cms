@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
+const authenticateToken = require('../middleware/auth')
 
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
@@ -20,7 +21,7 @@ router.get('/:gallery', async (req, res) => {
     return res.json(result.rows);
 });
 
-router.post('/', upload.single('image'), async (req, res) => {
+router.post('/', authenticateToken, upload.single('image'), async (req, res) => {
     const { gallery } = req.body;
     const uploadToCloudinary = () => new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
@@ -42,14 +43,14 @@ router.post('/', upload.single('image'), async (req, res) => {
     res.status(201).json(dbResult.rows[0]);
 });
 
-router.put('/:id/order', async (req, res) => {
+router.put('/:id/order', authenticateToken, async (req, res) => {
     const { order_index } = req.body;
     const { id } = req.params;
     const images = await pool.query('UPDATE images SET order_index = $1 WHERE id = $2 RETURNING *',[order_index, id]);
     return res.json(images.rows[0]);
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
     const id = req.params.id;
     const images = await pool.query('DELETE FROM images WHERE id = $1 RETURNING *', [id]);
     return res.json(images.rows[0]);

@@ -19,8 +19,6 @@ function Login() {
             body: JSON.stringify({ username, password })
         })
 
-        console.log(response.status, await response.text())
-
         const data = await response.json()
 
         if (!response.ok) {

@@ -9,7 +9,7 @@ const authenticateToken = require('./middleware/auth')
 app.use(cors({origin: '*'}));
 app.use(express.json());
 app.use('/auth', authRouter)
-app.use('/images', authenticateToken, imageRouter);
+app.use('/images', imageRouter);
 
 app.listen(3000, () => {
     console.log('Server running on port 3000.')
