@@ -6,14 +6,8 @@ function Gallery() {
     const [ images, setImages ] = useState([])
     const [ file, setFile ] = useState(null)
 
-    useEffect(() => {
-        fetch(`http://localhost:3000/images/${gallery}`)
-            .then(res => res.json())
-            .then(data => setImages(data))
-    }, [gallery])
-
     async function fetchImages() {
-        const response = await fetch(`http://localhost:3000/images/${gallery}`)
+        const response = await fetch(`https://portfolio-cms-production-7468.up.railway.app/images/${gallery}`)
         const data = await response.json()
         setImages(data)
     }
@@ -27,7 +21,7 @@ function Gallery() {
         const formData = new FormData()
         formData.append('image', file)
         formData.append('gallery', gallery)
-        let response = await fetch('http://localhost:3000/images', {
+        let response = await fetch('https://portfolio-cms-production-7468.up.railway.app/images', {
             method: 'POST',
             body: formData
         })
@@ -37,7 +31,7 @@ function Gallery() {
     }
 
     async function handleDelete(id) {
-        await fetch(`http://localhost:3000/images/${id}`, {
+        await fetch(`https://portfolio-cms-production-7468.up.railway.app/images/${id}`, {
             method: 'DELETE'
         })
         fetchImages()
