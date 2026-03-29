@@ -52,12 +52,18 @@ function Gallery() {
                 onChange={(e) => setFiles(Array.from(e.target.files))} />
                 <button type="submit">Upload</button>
             </form>
-            {images.map(img => (
+            <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: '4px'
+                    }}>
+                {images.map(img => (
                 <div key={img.id}>
                     <img src={img.url} width='200' />
                     <button onClick={() => handleDelete(img.id)}>Delete</button>
                 </div>
-            ))}
+                ))}
+            </div>
         </div>
     )
 }
