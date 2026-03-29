@@ -6,7 +6,7 @@ const API = 'https://portfolio-cms-production-7468.up.railway.app'
 function Gallery() {
     const { gallery } = useParams()
     const [ images, setImages ] = useState([])
-    const [ file, setFile ] = useState(null)
+    const [ files, setFiles ] = useState([])
 
     async function fetchImages() {
         const response = await fetch(`${API}/images/${gallery}`, {
@@ -23,16 +23,16 @@ function Gallery() {
     async function handleUpload(e) {
         e.preventDefault()
         const formData = new FormData()
-        formData.append('image', file)
+        files.forEach(file => formData.append('images', file))
         formData.append('gallery', gallery)
-        let response = await fetch(`${API}/images`, {
+        const response = await fetch(`${API}/images`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }, 
             body: formData
         })
-        let data = await response.json();
+        const data = await response.json();
         fetchImages()
-        setFile(null)
+        setFiles([])
     }
 
     async function handleDelete(id) {
@@ -47,7 +47,9 @@ function Gallery() {
         <div>
             <h1>{gallery}</h1>
             <form onSubmit={handleUpload}>
-                <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+                <input type="file" 
+                multiple
+                onChange={(e) => setFiles(Array.from(e.target.files))} />
                 <button type="submit">Upload</button>
             </form>
             {images.map(img => (

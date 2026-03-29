@@ -21,9 +21,11 @@ router.get('/:gallery', async (req, res) => {
     return res.json(result.rows);
 });
 
-router.post('/', authenticateToken, upload.single('image'), async (req, res) => {
+router.post('/', authenticateToken, upload.array('images'), async (req, res) => {
     const { gallery } = req.body;
-    const uploadToCloudinary = () => new Promise((resolve, reject) => {
+    const result = [];
+
+    const uploadToCloudinary = (file) => new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
             { folder: 'portfolio' },    
             (error, result) => {
@@ -31,16 +33,18 @@ router.post('/', authenticateToken, upload.single('image'), async (req, res) => 
                 else resolve(result);
             }
         );
-        stream.end(req.file.buffer);
+        stream.end(file.buffer);
     });
-    const cloudinaryResult = await uploadToCloudinary();
-    
-    const dbResult = await pool.query(
-        'INSERT INTO images (url, gallery, order_index) VALUES  ($1, $2, $3) RETURNING *',
-        [cloudinaryResult.secure_url, gallery, 0]
-    );
-    
-    res.status(201).json(dbResult.rows[0]);
+
+    for (const file of req.files) {
+        const cloudinaryResult = await uploadToCloudinary(file);
+        const dbResult = await pool.query(
+            'INSERT INTO images (url, gallery, order_index) VALUES  ($1, $2, $3) RETURNING *',
+            [cloudinaryResult.secure_url, gallery, 0]
+        )
+        result.push(dbResult.rows[0])
+    }
+    res.status(201).json(result);
 });
 
 router.put('/:id/order', authenticateToken, async (req, res) => {
