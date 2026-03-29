@@ -59,7 +59,7 @@ function Gallery() {
                     }}>
                 {images.map(img => (
                 <div key={img.id}>
-                    <img src={img.url} width='200' />
+                    <img src={img.url} style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover' }} />
                     <button onClick={() => handleDelete(img.id)}>Delete</button>
                 </div>
                 ))}
