@@ -12,18 +12,19 @@ function Nav() {
     const links = ['architecture', 'motorsport', 'photography']
 
     return (
-        <nav>
+        <nav className='flex flex-wrap justify-center gap-x-3 gap-y-1 px-2 py-2 text-xs'>
             {links.map(link => (
                 <button 
                     key={link}
                     onClick={() => gallery !== link && navigate(`/gallery/${link}`)}
                     disabled={gallery === link}
+                    className={gallery === link ? 'text-gray-400 cursor-default' : 'text-black cursor-pointer'}
                 >
                     {link}
                 </button>
             ))}
-            <button onClick={handleLogout}>logout</button>
-            <a href="https://asmirmehic.com" target="_blank">asmirmehic.com</a>
+            <button onClick={handleLogout} className="text-black cursor-pointer">logout</button>
+            <a href="https://asmirmehic.com" target="_blank" className="text-gray-400">asmirmehic.com</a>
         </nav>
     )
 }

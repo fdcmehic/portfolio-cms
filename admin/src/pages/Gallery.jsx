@@ -87,28 +87,34 @@ function Gallery() {
     } 
 
     return (
-        <div>
+        <div className="px-2">
             <Nav />
-                <input  
-                    type='file'
-                    multiple
-                    onChange={(e) => {
-                        const selected = Array.from(e.target.files)
-                        handleUpload(selected)
-                    }} 
-                />
+            <div className="flex gap-3 items-center justify-center mb-2 text-xs">
+                <label className="cursor-pointer">
+                    add images
+                    <input  
+                        type='file'
+                        multiple
+                        className="hidden"
+                        onChange={(e) => {
+                            const selected = Array.from(e.target.files)
+                            handleUpload(selected)
+                        }} 
+                    />
+                </label>
             
             {!selectMode && (
-                <button onClick={() => setSelectMode(true)}>Select</button>
+                <button onClick={() => setSelectMode(true)} className="cursor-pointer">select</button>
             )}
 
             {selectMode && (
                 <>
-                    <button onClick={() => { setSelectMode(false); setSelectedImages([]) }}>Cancel</button>
-                    <button onClick={handleDeleteSelcted}>Delete selected ({selectedImages.length})</button>
+                    <button onClick={() => { setSelectMode(false); setSelectedImages([]) }} className="cursor-pointer">cancel</button>
+                    <button onClick={handleDeleteSelcted} className="cursor-pointer">delete ({selectedImages.length}) </button>
                 </>
             )}
 
+            </div>
             <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <SortableContext items={images.map(img => img.id)} strategy={rectSortingStrategy}>
                     <div className="grid grid-cols-3 md:grid-cols-8 gap-1">
