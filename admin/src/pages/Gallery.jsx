@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { DndContext, closestCenter } from "@dnd-kit/core";
+import { DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, rectSortingStrategy } from "@dnd-kit/sortable";
 import SortableImage from "../components/SortableImage";
 import Nav from "../components/Nav";
@@ -86,6 +86,15 @@ function Gallery() {
         ))
     } 
 
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: { distance: 8 }
+        }),
+        useSensor(TouchSensor, {
+            activationConstraint: { delay: 250, tolerance: 5 }
+        })
+    ) 
+
     return (
         <div className="px-2">
             <Nav />
@@ -115,9 +124,9 @@ function Gallery() {
             )}
 
             </div>
-            <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <SortableContext items={images.map(img => img.id)} strategy={rectSortingStrategy}>
-                    <div className="grid grid-cols-3 md:grid-cols-8 gap-1" style={{ touchAction: 'none' }}>
+                    <div className="grid grid-cols-3 md:grid-cols-8 gap-1">
                         {images.map((img, index) => (
                             <SortableImage 
                                 key={img.id} 
