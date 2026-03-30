@@ -99,14 +99,9 @@ function Gallery() {
     return (
         <div className="px-2">
             <Nav />
-            {loading && (
-                <div className="fixed top-1 left-6 z-50">
-                    <Spinner />
-                </div>
-            )}
             <div className="flex gap-3 items-center justify-center mb-2 text-xs">
-                <label className="cursor-pointer">
-                    add image
+                <label className={loading ? "cursor-default" : "cursor-pointer"}>
+                    {loading ? <Spinner /> : 'add image'}
                     <input  
                         type='file'
                         multiple
