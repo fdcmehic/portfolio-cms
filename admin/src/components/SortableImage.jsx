@@ -1,7 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-function SortableImage({ img, index, onDelete, selectMode, selected, onSelect }) {
+function SortableImage({ img, index, selectMode, selected, onSelect }) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id:img.id, disabled: selectMode })
     const style = {
         transform: CSS.Transform.toString(transform),

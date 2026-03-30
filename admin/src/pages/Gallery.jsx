@@ -4,6 +4,7 @@ import { DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSe
 import { SortableContext, arrayMove, rectSortingStrategy } from "@dnd-kit/sortable";
 import SortableImage from "../components/SortableImage";
 import Nav from "../components/Nav";
+import Spinner from "../components/Spinner";
 
 const API = 'https://portfolio-cms-production-7468.up.railway.app'
 
@@ -14,13 +15,16 @@ function Gallery() {
     const [ selectMode, setSelectMode ] = useState(false)
     const [ selectedImages, setSelectedImages ] = useState([])
 
+    const [ loading, setLoading ] = useState(false)
+
     function handleSelect(id) {
         setSelectedImages(prev =>
             prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
         )
     }
 
-    async function handleDeleteSelcted() {
+    async function handleDeleteSelected() {
+        setLoading(true)
         await Promise.all(selectedImages.map(id =>
             fetch(`${API}/images/${id}`, {
                 method: 'DELETE',
@@ -29,15 +33,18 @@ function Gallery() {
         ))
         setSelectedImages([])
         setSelectMode(false)
-        fetchImages()
+        await fetchImages()
+        setLoading(false)
     }
 
     async function fetchImages() {
+        setLoading(true)
         const response = await fetch(`${API}/images/${gallery}`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         })
         const data = await response.json()
         setImages(data)
+        setLoading(false)
     }
 
     useEffect(() => {
@@ -46,6 +53,7 @@ function Gallery() {
 
     async function handleUpload(files) {
         if (files.length === 0) return
+        setLoading(true)
         const formData = new FormData()
         files.forEach(file => formData.append('images', file))
         formData.append('gallery', gallery)
@@ -54,15 +62,8 @@ function Gallery() {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }, 
             body: formData
         })
-        fetchImages()
-    }
-
-    async function handleDelete(id) {
-        await fetch(`${API}/images/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        })
-        fetchImages()
+        await fetchImages()
+        setLoading(false)
     }
 
     async function handleDragEnd(event) {
@@ -98,9 +99,14 @@ function Gallery() {
     return (
         <div className="px-2">
             <Nav />
+            {loading && (
+                <div className="fixed top-1 left-6 z-50">
+                    <Spinner />
+                </div>
+            )}
             <div className="flex gap-3 items-center justify-center mb-2 text-xs">
                 <label className="cursor-pointer">
-                    add images
+                    add image
                     <input  
                         type='file'
                         multiple
@@ -111,18 +117,15 @@ function Gallery() {
                         }} 
                     />
                 </label>
-            
             {!selectMode && (
                 <button onClick={() => setSelectMode(true)} className="cursor-pointer">select</button>
             )}
-
             {selectMode && (
                 <>
                     <button onClick={() => { setSelectMode(false); setSelectedImages([]) }} className="cursor-pointer">cancel</button>
-                    <button onClick={handleDeleteSelcted} className="cursor-pointer">delete ({selectedImages.length}) </button>
+                    <button onClick={handleDeleteSelected} className="cursor-pointer">delete ({selectedImages.length}) </button>
                 </>
             )}
-
             </div>
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <SortableContext items={images.map(img => img.id)} strategy={rectSortingStrategy}>
@@ -132,7 +135,6 @@ function Gallery() {
                                 key={img.id} 
                                 img={img} 
                                 index={index}
-                                onDelete={handleDelete}
                                 selectMode={selectMode}
                                 selected={selectedImages.includes(img.id)}
                                 onSelect={handleSelect} />
@@ -143,5 +145,4 @@ function Gallery() {
         </div>
     )
 }
-
 export default Gallery;
