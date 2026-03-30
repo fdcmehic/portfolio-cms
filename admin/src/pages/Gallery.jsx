@@ -9,7 +9,27 @@ const API = 'https://portfolio-cms-production-7468.up.railway.app'
 function Gallery() {
     const { gallery } = useParams()
     const [ images, setImages ] = useState([])
-    const [ files, setFiles ] = useState([])
+
+    const [ selectMode, setSelectMode ] = useState(false)
+    const [ selectedImages, setSelectedImages ] = useState([])
+
+    function handleSelect(id) {
+        setSelectedImages(prev =>
+            prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+        )
+    }
+
+    async function handleDeleteSelcted() {
+        await Promise.all(selectedImages.map(id =>
+            fetch(`${API}/images/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            })
+        ))
+        setSelectedImages([])
+        setSelectMode(false)
+        fetchImages()
+    }
 
     async function fetchImages() {
         const response = await fetch(`${API}/images/${gallery}`, {
@@ -23,19 +43,17 @@ function Gallery() {
         fetchImages()
     }, [gallery])
 
-    async function handleUpload(e) {
-        e.preventDefault()
+    async function handleUpload(files) {
+        if (files.length === 0) return
         const formData = new FormData()
         files.forEach(file => formData.append('images', file))
         formData.append('gallery', gallery)
-        const response = await fetch(`${API}/images`, {
+        await fetch(`${API}/images`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }, 
             body: formData
         })
-        const data = await response.json();
         fetchImages()
-        setFiles([])
     }
 
     async function handleDelete(id) {
@@ -70,18 +88,38 @@ function Gallery() {
     return (
         <div>
             <h1>{gallery}</h1>
-            <form onSubmit={handleUpload}>
-                <input type="file" 
+                <input  
+                    type='file'
                     multiple
-                    onChange={(e) => setFiles(Array.from(e.target.files))} />
-                <button type="submit">Upload</button>
-            </form>
+                    onChange={(e) => {
+                        const selected = Array.from(e.target.files)
+                        handleUpload(selected)
+                    }} 
+                />
+            
+            {!selectMode && (
+                <button onClick={() => setSelectMode(true)}>Select</button>
+            )}
+
+            {selectMode && (
+                <>
+                    <button onClick={() => { setSelectMode(false); setSelectedImages([]) }}>Cancel</button>
+                    <button onClick={handleDeleteSelcted}>Delete selected ({selectedImages.length})</button>
+                </>
+            )}
 
             <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <SortableContext items={images.map(img => img.id)} strategy={rectSortingStrategy}>
                     <div className="grid grid-cols-3 md:grid-cols-8 gap-1">
-                        {images.map(img => (
-                            <SortableImage key={img.id} img={img} onDelete={handleDelete} />
+                        {images.map((img, index) => (
+                            <SortableImage 
+                                key={img.id} 
+                                img={img} 
+                                index={index}
+                                onDelete={handleDelete}
+                                selectMode={selectMode}
+                                selected={selectedImages.includes(img.id)}
+                                onSelect={handleSelect} />
                         ))}
                     </div>
                 </SortableContext>
