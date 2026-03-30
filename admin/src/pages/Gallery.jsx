@@ -117,7 +117,7 @@ function Gallery() {
             </div>
             <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <SortableContext items={images.map(img => img.id)} strategy={rectSortingStrategy}>
-                    <div className="grid grid-cols-3 md:grid-cols-8 gap-1">
+                    <div className="grid grid-cols-3 md:grid-cols-8 gap-1" style={{ touchAction: 'none' }}>
                         {images.map((img, index) => (
                             <SortableImage 
                                 key={img.id} 
