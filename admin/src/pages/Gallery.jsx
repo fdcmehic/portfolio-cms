@@ -1,5 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { DndContext, closestCenter } from "@dnd-kit/core";
+import { SortableContext, arrayMove, rectSortingStrategy } from "@dnd-kit/sortable";
+import SortableImage from "../components/SortableImage";
 
 const API = 'https://portfolio-cms-production-7468.up.railway.app'
 
@@ -43,23 +46,46 @@ function Gallery() {
         fetchImages()
     }
 
+    async function handleDragEnd(event) {
+        const { active, over } = event
+        if (!over || active.id === over.id) return
+
+        const oldIndex = images.findIndex(img => img.id === active.id)
+        const newIndex = images.findIndex(img => img.id === over.id)
+        const reordered = arrayMove(images, oldIndex, newIndex)
+        setImages(reordered)
+
+        await Promise.all(reordered.map((img, index) => 
+            fetch(`${API}/images/${img.id}/order`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json'
+                }, 
+                body: JSON.stringify({ order_index: index })
+            })
+        ))
+    } 
+
     return (
         <div>
             <h1>{gallery}</h1>
             <form onSubmit={handleUpload}>
                 <input type="file" 
-                multiple
-                onChange={(e) => setFiles(Array.from(e.target.files))} />
+                    multiple
+                    onChange={(e) => setFiles(Array.from(e.target.files))} />
                 <button type="submit">Upload</button>
             </form>
-            <div className="grid grid-cols-3 md:grid-cols-8 gap-1">
-                {images.map(img => (
-                <div key={img.id}>
-                    <img src={img.url} className="w-full aspect-square object-cover" />
-                    <button onClick={() => handleDelete(img.id)}>Delete</button>
-                </div>
-                ))}
-            </div>
+
+            <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={images.map(img => img.id)} strategy={rectSortingStrategy}>
+                    <div className="grid grid-cols-3 md:grid-cols-8 gap-1">
+                        {images.map(img => (
+                            <SortableImage key={img.id} img={img} onDelete={handleDelete} />
+                        ))}
+                    </div>
+                </SortableContext>
+            </DndContext>
         </div>
     )
 }
