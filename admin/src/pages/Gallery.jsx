@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { SortableContext, arrayMove, rectSortingStrategy } from "@dnd-kit/sortable";
 import SortableImage from "../components/SortableImage";
+import Nav from "../components/Nav";
 
 const API = 'https://portfolio-cms-production-7468.up.railway.app'
 
@@ -87,7 +88,7 @@ function Gallery() {
 
     return (
         <div>
-            <h1>{gallery}</h1>
+            <Nav />
                 <input  
                     type='file'
                     multiple

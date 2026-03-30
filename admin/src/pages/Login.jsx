@@ -50,6 +50,7 @@ function Login() {
                  />
                  <button type='submit'>Login</button>
             </form>
+            <a href="https://asmirmehic.com" target='_blank'>asmirmehic.com</a>
             {error && <p>{error}</p>}
         </div>
     )
