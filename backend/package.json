@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/server.js",
-    "build": "./node_modules/.bin/tsc",
+    "build": "node node_modules/typescript/bin/tsc",
     "dev": "nodemon server.ts"
   },
   "keywords": [],
