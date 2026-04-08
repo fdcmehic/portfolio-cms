@@ -6,10 +6,10 @@ const API = 'https://portfolio-cms-production-7468.up.railway.app'
 function Login() {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
-    const [error, setError] = useState(null)
+    const [error, setError] = useState<string | null>(null)
     const navigate = useNavigate()
 
-    async function handleLogin(e) {
+    async function handleLogin(e: React.FormEvent) {
         e.preventDefault()
         setError(null)
         const response = await fetch(`${API}/auth/login`, {
